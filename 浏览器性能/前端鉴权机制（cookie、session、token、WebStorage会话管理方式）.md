@@ -85,7 +85,7 @@ document.cookie = "name=xiaoming; age=12 "
 - 用户通过用户名和密码发送请求
 - 程序验证
 - 程序返回一个签名的token给客户端
-- 客户端储存token, 并且每次用每次发送请求
+- 客户端储存token, 并且每次用于发送请求
 - 服务端验证Token并返回数据
 
 

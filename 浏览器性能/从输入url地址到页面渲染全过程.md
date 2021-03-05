@@ -35,6 +35,26 @@ DNS记录、DNS协议、DNS服务器
 
 - 第三次握手：Client收到确认后，检查ack是否为J+1，ACK是否为1，如果正确则将标志位ACK置为1，ack=K+1，并将该数据包发送给Server，Server检查ack是否为K+1，ACK是否为1，如果正确则连接建立成功，Client和Server进入ESTABLISHED状态，完成三次握手，随后Client与Server之间可以开始传输数据。
 
+
+
+**【补充：tcp报文格式】**
+
+
+
+![img](https://images2015.cnblogs.com/blog/964016/201608/964016-20160829215953168-1927861560.png)
+
+
+
+- 32位序号seq
+
+- 32位确认序号ack
+- URG：紧急标志。紧急标志为"1"表明该位有效。
+- ACK：确认标志。表明确认编号栏有效。
+- PSH：推标志。
+- RST：复位标志。
+- SYN：同步标志。表明同步序列编号栏有效。该标志仅在三次握手建立TCP连接时有效。
+- FIN：结束标志。
+
 ### 3、发送 HTTP 请求
 
 请求报文由请求行（request line）、请求头（header）、请求体三个部分组成。
