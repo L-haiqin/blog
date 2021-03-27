@@ -65,6 +65,10 @@ pending，resolved，rejected
 
 6、常与setTimeout结合考宏任务、微任务执行顺序：promise接收的函数参数是同步执行的，但then方法中的回调函数执行则是异步的。
 
+7、为什么promise中的执行器函数是同步执行，而then()是异步执行？
+
+> Promise是异步动作的同步处理方案。
+
 
 
 参考博客：[概念](https://juejin.cn/post/6844903488695042062)、[手写](https://juejin.cn/post/6844903617619558408)、[阮一峰ES6](https://es6.ruanyifeng.com/#docs/promise)
