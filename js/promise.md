@@ -37,7 +37,86 @@ pending，resolved，rejected
 - 当Promise中的函数参数执行了resolve后，Promise由pending状态变成resolved状态；
 - 如果在Promise的函数参数中执行的不是resolve方法，而是reject方法，那么Promise会由pending状态变成rejected状态。
 
+### 迭代器
 
+遍历与迭代的区别：从目标源依次逐个抽取的方式来提取数据。（目标源必须是有序的且连续的）
+
+### async、await、promise三者关系
+
+1、执行async函数，返回的都是promise对象
+
+```javascript
+async function test1(){
+    return 1; // 被封装成promise对象再返回
+}
+async function test2(){
+    return Promise.resolve(2);
+}
+
+const result1 = test1();
+const result2 = test2();
+console.log('result1', result1);
+console.log('result2', result2);
+```
+
+![1626592675375](C:\Users\lhq\AppData\Roaming\Typora\typora-user-images\1626592675375.png)
+
+2、promise.then成功的情况对应await
+
+```javascript
+// await后面跟一个promise对象
+async function test3(){
+    const p3 = Promise.resolve(3); // 定义一个promise对象，并赋值给p3
+    
+    p3.then(data3 => {
+        console.log('data3', data3); // data3 3
+    })
+    
+    // 等同于下面的代码
+    const data4 = await p3;
+    console.log('data4', data4); // data4 3
+}
+
+test3()
+```
+
+```javascript
+// await后面跟一个数字
+async function test4(){
+    const data4 = await 4; // 相当于 await Promise.resolve(4)
+    console.log('data4', data4); // data4 4
+}
+
+test4()
+```
+
+```javascript
+// await后面跟一个异步函数async
+async function test5(){
+    const data5 = await test1(); // async异步函数test1()返回的是一个promise对象
+    console.log('data5', data5); // data5 1
+}
+
+test5()
+```
+
+3、promise.catch异常的情况对应try...catch
+
+```javascript
+async function test6(){
+    const p6 = Promise.reject(6); // 定义一个promise对象，并赋值给p6
+    try{
+        const data6 = await p6;
+        console.log('data6', data6);
+    }catch(e){
+        console.error('e',e)
+    }
+}
+
+test6()
+```
+
+![1626594661029](C:\Users\lhq\AppData\Roaming\Typora\typora-user-images\1626594661029.png)
 
 ### 常见面试题
 

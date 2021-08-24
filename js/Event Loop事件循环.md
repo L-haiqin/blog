@@ -25,12 +25,12 @@ Event Loop即事件循环，是指浏览器或Node的一种解决javaScript**单
 #### 宏任务与微任务（均为异步任务）
 MacroTask（宏任务，简称Task）：
 
-- `script`全部代码、`setTimeout`、`setInterval`、`setImmediate`（浏览器暂时不支持，只有IE10支持，具体可见MDN）、`I/O`、`UI Rendering`。
+- `script`全部代码、`setTimeout`、`setInterval`、`setImmediate`（浏览器暂时不支持，只有IE10支持，具体可见MDN）、DOM事件、AJAX请求、`I/O`、`UI Rendering`。
 
 
 MicroTask（微任务）：
 
- - `Process.nextTick`（Node独有）、`Promise.then()`、`Object.observe`(废弃)、`MutationObserver`。
+ - `Process.nextTick`（Node独有）、`Promise.then()`、`async/await`、`Object.observe`(废弃)、`MutationObserver`。
 
 
 任务的优先级：
@@ -58,7 +58,7 @@ MicroTask（微任务）：
 
 
 **执行顺序：**
-- 同步任务（调用栈或执行栈）->微任务（微任务队列）->宏任务（消息队列）
+- 同步任务（调用栈或执行栈）->微任务（微任务队列）->DOM渲染 ->宏任务（消息队列）
 - 因为宏任务和微任务都是存放在队列中的，所以是**先进先出**
 
 **【补充】**
