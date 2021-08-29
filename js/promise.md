@@ -140,7 +140,7 @@ test6()
 
 5、如何让Promise顺序执行?（async/await）
 
->
+>https://blog.csdn.net/weixin_34019144/article/details/88752312
 
 6、常与setTimeout结合考宏任务、微任务执行顺序：promise接收的函数参数是同步执行的，但then方法中的回调函数执行则是异步的。
 

@@ -1,3 +1,7 @@
+## 响应式原理（数据双向绑定原理）
+
+[彻底搞懂Vue针对数组和双向绑定(MVVM)的处理方式](https://www.cnblogs.com/wangweianger/p/10318255.html)
+
 > 参考博客：[Vue响应式原理（易懂）](https://juejin.cn/post/6844903858850758670#heading-1)、[简单实现vue的响应式](https://github.com/wind-jyf/MVVM)
 
 
