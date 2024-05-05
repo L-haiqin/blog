@@ -43,7 +43,9 @@ MicroTask（微任务）：
 `main thread` 主线程和 `call-stack` 调用栈(执行栈)，所有的任务都会被放到调用栈等待主线程执行。
 
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20210201093030362.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzk3MzQxNQ==,size_16,color_FFFFFF,t_70)
+
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20210201093050923.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzk3MzQxNQ==,size_16,color_FFFFFF,t_70)
+
 **任务队列：**
 
 "任务队列"是一个事件的队列（消息队列），IO设备完成一项任务，就在"任务队列"中添加一个**事件**（IO设备的事件、用户产生的事件（比如鼠标点击、页面滚动等）），表示相关的异步任务可以进入"执行栈"了。主线程读取"任务队列"，就是读取里面有哪些事件。
@@ -84,6 +86,7 @@ MicroTask（微任务）：
 例2：
 
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20210201094910227.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzk3MzQxNQ==,size_16,color_FFFFFF,t_70)
+
 例3：
 
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20210201095616166.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzk3MzQxNQ==,size_16,color_FFFFFF,t_70)

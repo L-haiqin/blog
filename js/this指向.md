@@ -157,6 +157,11 @@ f.apply(zs,[23]); // zhangsan is 23
 ```
 - 为节点对象的属性重新赋值为一个匿名函数，因此函数在执行时就是在节点对象的环境下
 
+> 事件处理的写法：
+>
+> - html：`<input type="button" value="按钮" onclick="clickFun()">`
+> - dom0级：`btn.onclick = function()}`
+
 #### 第二种：window定时器中的this
 
 ```javascript
@@ -173,5 +178,43 @@ setInterval('obj.fun()',1000);  // this指向obj对象
 - 第一个参数`obj.fun`传递的是函数`obj.fun()`的地址，1000毫秒后，函数的运行环境是在Windows下，即this指向window对象
 - 第一个参数`'obj.fun()'`传入的一段可执行的 JS 代码，1000毫秒后，通过 obj 对象来找到 fun 函数并调用执行，那么函数的运行环境在对象 obj 内，即this指向obj对象
 
+>setTimeout()：方法只运行一次，延迟时间达到之后会执行一次
+>
+>setInterval()：循环执行，除非clearInterval()被调用或者窗口被关闭
+>
+>定时器或者事件监听的使用，一定要清除定时器和销毁事件！！！[window的addEventListener和removeEventListener方法的使用踩雷](https://blog.csdn.net/weixin_43973415/article/details/133361188)
+
+### 应用
+
+tracing添加批量上报的时候有处理过类似问题：
+
+```js
+  public updateOptions({
+    scheduledDelayMs,
+    maxQueueSizeKb,
+    enableBatch,
+  }: Options) {
+    // ...
+    if (typeof enableBatch === 'boolean') {
+      this._options.enableBatch = enableBatch;
+      if (enableBatch) {
+        // avoid adding listeners repeatedly, so need to remove listeners firstly if has added previously
+        this._adapter.removePageHiddenListener(); // here
+        this._adapter.addPageHiddenListener(this.forceFlush.bind(this)); // here
+      } else {
+        this.onShutdown();
+        this.forceFlush();
+      }
+    }
+  }
+
+  public forceFlush() {
+    this._curQueueSizeKb = 0;
+    this._flushAll();
+  }
+```
+
+
 
 参考博客：[JavaScript 的 this 原理](http://www.ruanyifeng.com/blog/2018/06/javascript-this.html)、[Javascript 的 this 用法](http://www.ruanyifeng.com/blog/2010/04/using_this_keyword_in_javascript.html)
+

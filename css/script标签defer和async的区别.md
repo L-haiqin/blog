@@ -18,15 +18,25 @@
 
 async 表示**异步**，例如七牛的源码中就有大量的 async 出现：
 
-![七牛](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2bad108f420844fab2e66e7ee80a217e~tplv-k3u1fbpfcp-zoom-1.image) 
+![img](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2bad108f420844fab2e66e7ee80a217e~tplv-k3u1fbpfcp-zoom-1.image)
+
+ 
 
 当浏览器遇到带有 async 属性的 script 时，请求该脚本的网络请求是**异步**的，不会阻塞浏览器解析 HTML，一旦网络请求回来之后，如果此时 HTML 还没有解析完，浏览器会暂停解析，先让 JS 引擎**执行**代码，执行完毕后再进行解析，图示如下：
 
+
+
 ![script](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/021b5dbeddb64db0a7099dc0a4dd076d~tplv-k3u1fbpfcp-zoom-1.image)
+
+
 
 当然，如果在 JS 脚本请求回来之前，HTML 已经解析完毕了，那就啥事没有，立即执行 JS 代码，如下图所示：
 
+
+
 ![defer2](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/4e5a89a4a1fe49ed9d5acaf25ef9aadd~tplv-k3u1fbpfcp-zoom-1.image)
+
+
 
 所以 async 是不可控的，**因为执行时间不确定，你如果在异步 JS 脚本中获取某个 DOM 元素，有可能获取到也有可能获取不到。**而且如果存在多个 async 的时候，它们之间的执行顺序也不确定，完全依赖于网络传输结果，谁先到执行谁。
 
@@ -46,6 +56,8 @@ defer 表示**延迟**，例如掘金的源码中就有大量的 defer 出现：
 
 所以，defer比较适合与dom有关联的脚本。
 
+在解析完之后再执行js代码，能够保证如果该js代码中有操作dom元素的代码正常执行。不存在dom元素找不到的情况。
+
 ## 总结
 
 最后，根据上面的分析，不同类型 script 的执行顺序及其是否阻塞解析 HTML 总结如下：
@@ -61,3 +73,20 @@ defer 表示**延迟**，例如掘金的源码中就有大量的 defer 出现：
 当script同时有async和defer属性时，执行效果和async一致。
 
 链接：[掘金](https://juejin.cn/post/6894629999215640583)、[红宝书说法](https://blog.csdn.net/qq_43393963/article/details/101389319)
+
+## 补充：css加载会阻塞dom树的解析和渲染吗
+
+https://zhuanlan.zhihu.com/p/43282197
+
+结论：
+
+1. **css加载不会阻塞DOM树的解析**
+2. **css加载会阻塞DOM树的渲染。**因为如果边加载边渲染，那就要不断的更改盒子们的坐标和尺寸，就要不断的重绘界面，没有实际意义
+3. **css加载会阻塞后面js语句的执行。**因为JS可以动态修改css，那么最终渲染结果就是不可预估的了
+
+因此，为了避免让用户看到长时间的白屏时间，我们应该尽可能的提高css加载速度，比如可以使用以下几种方法:
+
+1. 使用CDN(因为CDN会根据你的网络状况，替你挑选最近的一个具有缓存内容的节点为你提供资源，因此可以减少加载时间)
+2. 对css进行压缩(可以用很多打包工具，比如webpack,gulp等，也可以通过开启gzip压缩)
+3. 合理的使用缓存(设置cache-control,expires,以及E-tag都是不错的，不过要注意一个问题，就是文件更新后，你要避免缓存而带来的影响。其中一个解决防范是在文件名字后面加一个版本号) ===》就是说保证文件名不一样，可以使用md5
+4. 减少http请求数，将多个css文件合并，或者是干脆直接写成内联样式(内联样式的一个缺点就是不能缓存)
