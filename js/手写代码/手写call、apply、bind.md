@@ -1,3 +1,91 @@
+```js
+// 1. call
+Function.prototype.myCall = function(context, ...args) {
+    // ​**处理 context 为 null 或 undefined 的情况，默认指向全局对象（浏览器中为 window）​**
+    context = context || globalThis; 
+    
+    // ​**避免覆盖 context 原有属性，用 Symbol 生成唯一键**
+    const fnKey = Symbol('fnKey'); 
+    context[fnKey] = this; // this 是原函数,函数作为对象的方法调用时，this会指向该对象
+    
+    // ​**执行函数并保存结果**
+    const result = context[fnKey](...args); 
+    
+    // ​**清理临时属性**
+    delete context[fnKey]; 
+    
+    return result;
+};
+
+// 测试用例
+const obj = { value: 100 };
+function test(a, b) { return this.value + a + b; }
+console.log(test.myCall(obj, 1, 2)); // 输出 103
+
+
+// 2.apply
+Function.prototype.myApply = function(context, argsArray) {
+    // ​**处理参数数组未传递或非数组的情况**
+    argsArray = Array.isArray(argsArray) ? argsArray : [];
+    
+    context = context || globalThis;
+    const fnKey = Symbol('fnKey');
+    context[fnKey] = this;
+    
+    // ​**使用展开语法传递数组参数**
+    const result = context[fnKey](...argsArray);
+    delete context[fnKey];
+    
+    return result;
+};
+
+// 测试用例
+console.log(test.myApply(obj, [3, 4])); // 输出 107
+
+
+// 3.bind
+Function.prototype.myBind = function(context, ...bindArgs) {
+    const originalFunc = this; // 原函数
+    
+    // ​**返回的新函数可以接收新参数**
+    const boundFunc = function(...callArgs) {
+        // ​**判断是否通过 new 调用（构造函数场景）​**
+        const isNewCall = this instanceof boundFunc;
+        
+        // ​**如果是构造函数调用，this 指向新对象，否则使用绑定的 context**
+        const finalContext = isNewCall ? this : context;
+        
+        // ​**合并绑定参数和调用参数**
+        const finalArgs = bindArgs.concat(callArgs);
+        
+        // ​**执行原函数**
+        return originalFunc.apply(finalContext, finalArgs);
+    };
+    
+    // ​**维护原型关系：新函数的原型指向原函数的原型**
+    if (originalFunc.prototype) {
+        // ​**使用空函数中转避免直接修改 boundFunc.prototype**
+        const EmptyFunc = function() {};
+        EmptyFunc.prototype = originalFunc.prototype;
+        boundFunc.prototype = new EmptyFunc();
+    }
+    
+    return boundFunc;
+};
+
+// 测试用例
+const boundTest = test.myBind(obj, 5);
+console.log(boundTest(6)); // 输出 111
+
+// 构造函数场景测试
+function Person(name) { this.name = name; }
+const BoundPerson = Person.myBind(null);
+const person = new BoundPerson('John');
+console.log(person.name); // 输出 "John"
+```
+
+有一个关键点：**函数作为对象的方法调用时，this会指向该对象**。所以会用对象的一个key来保存原函数，像这样子context[fnKey] = this;
+
 ### 手写call()
 
 - `函数名称.call(obj,arg1,arg2...argN);`

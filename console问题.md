@@ -457,6 +457,18 @@ Error: 2
 4
 ```
 
+- r(x, console.log(x))这种写法，会在reslove的时候立即执行console.log。
+
+```js
+// 这种写法才是1s后console
+setTimeout(()=>{
+  console.log(x);
+  resolve(x);
+},1000)
+```
+
+
+
 - 并行执行多个异步操作，并且在一个回调中处理所有的返回数据。
 
 >  有一个场景是很适合用这个的，一些游戏类的素材比较多的应用，打开网页时，预先加载需要用到的各种资源如图片、flash以及各种静态文件。所有的都加载完后，我们再进行页面的初始化。 
@@ -668,11 +680,11 @@ var  o2 = {
     }
 }
 
-// 这一步没看太明白？？？？？？？？？？？？？？？let的作用？？？？？？？
 var  o3 = {
     name:'o3',
     fn:function(){
-        let fn = o1.fn; // 此时的this指向是全局？？？
+        // fn保存o1.fn的引用，导致o1的this丢失
+        let fn = o1.fn; // 当函数作为普通函数调用时，this在非严格模式下指向全局对象（浏览器中是window）
         return fn()
     }
 }
@@ -716,7 +728,7 @@ function rootFn(){
     }
     return childFn; // 闭包
 }
-rootFn.apply(ctx)(); // rootFn作用域的this指向ctx对象，第一个()执行rootFn，第二个()执行childFn
+rootFn.apply(ctx)(); // rootFn作用域的this指向ctx对象，第一个()执行rootFn，第二个()执行childFn。childFn是作为普通函数调用的，没有显式的this绑定，所以this指向全局对象
 console.log(ctx._val);
 
 // 打印：
@@ -726,6 +738,8 @@ console.log(ctx._val);
 ```
 
 闭包的链式作用域
+
+childFn是**作为普通函数调用的，没有显式的this绑定，所以this指向全局对象**
 
 ##### 3.4 题目四
 
@@ -739,15 +753,17 @@ getName() {
 }
 }
 const func = o.getName();
-func() // undefined
+func() // undefined，作为普通函数被调用，此时this指向全局对象（全局对象没有name）
 
+// 或者使用bind、call改变this指向
+func.bind(o)()
 
 // 要使输出didi，可以使用箭头函数
 const o = {
 name: 'didi',
 getName() {
     return () => {
-        console.log(this.name);
+        console.log(this.name); // 箭头函数没有自己的this，指向外部上下文的this
     }
 }
 }
@@ -929,10 +945,10 @@ func2()
 ```javascript
 function fn1(){}
 function fn2(){}
-fn1.prototype = new fn2();
-fn2.prototype = new fn1();
-const f1 = new fn1();
-const f2 = new fn2();
+fn1.prototype = new fn2(); // fn1.prototype._proto_ = fn2.prototype
+fn2.prototype = new fn1(); // fn2.prototype._proto_ = fn1.prototype
+const f1 = new fn1(); // f1._proto_ = fn1.prototype   = fn2.prototype._proto_
+const f2 = new fn2(); // f2._proto_ = fn2.prototype   = fn1.prototype._proto_
 console.log(f1.constructor, f2.constructor) // fn2 fn2
 ```
 

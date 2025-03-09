@@ -407,6 +407,10 @@ await 命令后面的 Promise 对象，运行结果可能是 rejected，所以�
 7、为什么promise中的执行器函数是同步执行，而then()是异步执行？
 
 > Promise是异步动作的同步处理方案。
+>
+> 执行器函数一般是为了**启动这些异步操作**，比如网络请求、下载文件、native sdk等；
+>
+> then异步执行是为了等待状态发生变化，进行可以做出对应操作，以及为了不足塞后续代码的执行。
 
 #### 使用总结
 
@@ -467,6 +471,7 @@ new Promise(买菜)
 
 ```javascript
 const arr = [1, 2, 3]
+// 方法一
 arr.reduce((p, x) => {
   return p.then(() => {
     return new Promise(r => {
@@ -474,6 +479,27 @@ arr.reduce((p, x) => {
     })
   })
 }, Promise.resolve())
+
+// 方法二
+arr.forEach((number, index) => {
+    setTimeout(() => {
+        console.log(number);
+    }, 1000 * (index + 1));
+});
+
+// 方法三
+const delay = (n) => new Promise(r => setTimeout(() =>r(console.log(n)),1000))
+const func= async(arr)=>{
+    for(let i=0; i<arr.length; i++){
+        await delay(arr[i]);
+    }
+}
+func([1,2,3])
+
+// forEach是不可以的，会同步执行完所有sync，导致1s后同时打印1，2，3
+arr.forEach(async(n)=>{
+   await delay(n);
+})
 ```
 
 如何让异步操作顺序执行？
@@ -566,54 +592,77 @@ queue.excute(func3)
 代码实现：
 
 ```javascript
-function myPromise(fn){
-    return new Promise(resolve => {
-        fn();
-        resolve();
-    })
+function cb(value){
+    console.log(value)
 }
 
-
-```
-
-
-
-```javascript
-    // 基于数组封装队列类
-    function Queue() {
-    // 属性
-      this.items = []
-      
-    // 方法
-const light = function (timer, cb) {
-  return new Promise(resolve => {
+// callback: (value: number) => void;
+function func1(callback) {
     setTimeout(() => {
-      cb()
-      resolve()
-    }, timer)
-  })
+        callback(1)
+    }, 2000)
 }
-    Queue.prototype.excute = 
-        
-    // 1.enqueue():将元素加入到队列中
-    Queue.prototype.enqueue = element => {
-      this.items.push(element)
+
+function func2(callback) {
+    setTimeout(() => {
+        callback(2)
+    }, 1000)
+}
+
+function func3(callback) {
+    setTimeout(() => {
+        callback(3)
+    }, 3000)
+}
+
+class Queue {
+    constructor() {
+        // 初始化一个空数组用于存储要执行的函数
+        this.queue = [];
+        // 标记当前是否有函数正在执行
+        this.isExecuting = false;
     }
- 
-    // 6.toString():将队列中元素以字符串形式输出
-    Queue.prototype.toString = () => {
-      let resultString = ''
-        for (let i of this.items){
-          resultString += i + ' '
+
+    // excute 方法，用于将函数添加到队列中并尝试执行
+    excute(func) {
+        // 将传入的函数添加到队列末尾
+        this.queue.push(func);
+        // 如果当前没有函数正在执行，则开始执行队列中的函数
+        if (!this.isExecuting) {
+            this.processQueue();
         }
-        return resultString
-      }
     }
- 	// 创建队列
-    let queue = new  Queue()
- 
-    // 将元素加入到队列中
-    queue.enqueue('a')
+
+    // 处理队列中的函数
+    async processQueue() {
+        // 标记为正在执行
+        this.isExecuting = true;
+        // 当队列不为空时，循环执行队列中的函数
+        while (this.queue.length > 0) {
+            // 取出队列头部的函数
+            const currentFunc = this.queue.shift();
+            // 使用 Promise 封装当前函数的执行
+            await new Promise((resolve) => {
+                // 执行当前函数，并传入一个回调函数
+                currentFunc((value) => {
+                    console.log('value:', value); // 打印1 2 3
+                    // 调用回调函数打印结果
+                    cb(value);
+                    // 函数执行完毕，标记为已完成
+                    resolve();
+                });
+            });
+        }
+        // 队列处理完毕，标记为没有函数正在执行
+        this.isExecuting = false;
+    }
+}
+
+
+let queue = new Queue()
+queue.excute(func1)
+queue.excute(func2)
+queue.excute(func3)
 ```
 
 
@@ -838,20 +887,25 @@ console.info(+'1,000') // => NaN
 
 ###### 手写Promise.all
 
+执行一个promise数组，全部resolved则返回数组的执行结果；一旦有个失败的promise，则返回该失败的promise
+
 ```javascript
 Promise.prototype.all = (iterators) => {
     let arr = Array.from(iterators);
     let result = [];
     let counter = 0; // 设计一个计数器，保存它的成功的数量
+    // 1.返回一个promise
     return new Promise((resolve, reject) => {
         arr.forEach((item, index) => {
             Promise.resolve(item).then(value => {
                 result[index] = value;
                 counter ++;
                 if (counter === arr.length) {//通过conter变量比较，而不是直接通过result.length去判断
+                    // 2.全部执行完成，则resolve，并返回结果
                     resolve(result);
                 }
             }).catch(err => {
+                // 3.一旦有一个失败则返回该失败的promise
                 reject(err)
             })
         })
@@ -892,6 +946,8 @@ Promise.all([
 
 谁先决议那么就返回谁，所以将all的计数器和逻辑判断全部去除掉就可以了。
 
+一旦一个成功或者失败，则直接返回该promise。
+
 ```javascript
 Promise.prototype.race = (iterators) => {
     let arr = Array.from(iterators);
@@ -911,6 +967,8 @@ Promise.prototype.race = (iterators) => {
 ```
 
 ###### 手写Promise.any
+
+任何一个成功，则返回该promise。否则返回失败的promise
 
 ```javascript
 Promise.prototype.any = (iterators) => {
@@ -950,6 +1008,7 @@ p1.then(function(value) {
 }).catch(function(e) {
   console.log(e); // "oh, no!"
 }).then(function(){
+  // then接受两个参数，第一个是reslove的回调，第二个是reject的回调
   console.log('after a catch the chain is restored');
 }, function () {
   console.log('Not fired due to the catch');
@@ -1034,7 +1093,7 @@ calling next
 */
 ```
 
-`p.catch(onRejected);`：如果 `onRejected` 抛出一个错误或返回一个本身失败的 Promise ，  通过 `catch()` 返回的Promise 被rejected；否则，它将显示为成功（resolved）。
+`p.catch(onRejected);`：如果 `onRejected` 抛出一个错误或返回一个本身失败的 Promise ，  通过 `catch()` 返回的Promise 被rejected；**否则，它将显示为成功（resolved）。**
 
 ###### 题目四：
 
@@ -1151,7 +1210,7 @@ Promise.resolve()
   })
   .catch(error => {
     console.error('onRejected function called: ' + error.message);
-  })
+  }) // 只要没有显式的reject，则都可以看成resolve
   .then(() => {
     console.log("I am always called even if the prior then's promise rejects");
   });

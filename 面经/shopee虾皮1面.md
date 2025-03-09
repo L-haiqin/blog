@@ -98,9 +98,59 @@ console.log(v4) // 3
 
 1、看代码说输出
 
-![32F5FB4FC382D71FB9DE9397C299BEEE](/Users/lihaiqin/Library/Containers/com.tencent.qq/Data/Library/Caches/Images/32F5FB4FC382D71FB9DE9397C299BEEE.jpg)
+```js
+async function async1() {
 
-![3119F61C3CB10FCC422D6F337D7E9F74](/Users/lihaiqin/Library/Containers/com.tencent.qq/Data/Library/Caches/Images/3119F61C3CB10FCC422D6F337D7E9F74.jpg)
+    console.log(1);
+    var p = Promise.resolve()
+
+    p.then(function () {
+        Promise.resolve().then(() => console.log(2)).then(() => console.log(3))
+        console.log(4);
+    }).then(v => console.log(5)).then(v => console.log(6));
+    p.then(v => console.log(7))
+
+    await new Promise(function (resolve) {
+        console.log(8);
+        resolve();
+    })
+}
+
+async1();
+console.log(9)
+
+// 打印如下：1 8 9 4 7 2 5 3 6
+```
+
+
+
+```js
+async function async1() {
+    console.log(1);
+    // await 会阻塞后续代码的执行
+    await new Promise(function (resolve) {
+        resolve();
+        console.log(2);
+    }).then(function () { // 压入微任务队列
+        console.log(3);
+    }); 
+    console.log(4);
+}
+
+console.log(5);
+
+setTimeout(function () {
+    console.log(6);
+}, 0);
+
+async1();
+
+console.log(7);
+
+// 打印：5 1 2 7 3 4 6
+```
+
+
 
 2、csrf、xss攻击
 

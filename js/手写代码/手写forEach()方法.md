@@ -17,7 +17,7 @@ Array.prototype.forEach = function(fn, context) {
     // console.log('arguments:', arguments)
     // console.log('this:', this) // [1,2,3,4,5]
     
-    var context = arguments[1]; // 获取第二个参数context
+    // var context = arguments[1]; // 获取第二个参数context
     if(typeof fn !== "function") {
         throw new TypeError(fn + "is not a function");
     }
