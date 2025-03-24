@@ -1,4 +1,6 @@
-> 参考博客：[经典面试题：从 URL 输入到页面展现到底发生什么？](https://www.zhihu.com/people/jian-qiang-de-pao-mo-90)、[TCP/IP协议详解](https://blog.csdn.net/weixin_44198965/article/details/90083126)
+> 参考博客：[浏览器从输入URL到页面渲染加载的过程（浏览器知识体系整理）](https://juejin.cn/post/7316775422187061300)
+>
+> [经典面试题：从 URL 输入到页面展现到底发生什么？](https://www.zhihu.com/people/jian-qiang-de-pao-mo-90)、[TCP/IP协议详解](https://blog.csdn.net/weixin_44198965/article/details/90083126)
 
 - DNS 解析：将域名解析成 IP 地址
 - TCP 连接：TCP 三次握手 

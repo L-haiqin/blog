@@ -220,6 +220,30 @@ app.listen(3001)
 
 安装`webpack-dev-middleware`，用于在服务端启动webpack。
 
+#### 6、如何对bundle体积进行监控和分析？
+
+- `webpack-bundle-analyzer`：可视化分析模块体积
+- `speed-measure-webpack-plugin` ：监控构建速度
+
+#### 7、如何减少bundle大小
+
+- 代码分割：将代码分割成多个chunk，按需加载。比如可以配置多个entry，提取公共模块。
+- Tree Shaking：删除没有使用的文件代码。
+- 资源压缩：使用一些loader压缩js和css、图片资源。
+- 按需加载第三方库：比如可以只加载`import('moment/locale/zh-cn')`，使用cdn的方式导入第三方库。
+
+#### 8、文件指纹
+
+文件指纹是打包后输出的文件名的后缀。
+
+`Hash`：和整个项目的构建相关，只要项目文件有修改，整个项目构建的 hash 值就会更改
+
+`Chunkhash`：和 Webpack 打包的 chunk 有关，不同的 entry 会生出不同的 chunkhash
+
+`Contenthash`：根据文件内容来定义 hash，文件内容不变，则 contenthash 不变
+
+
+
 
 
 
