@@ -109,7 +109,21 @@
 
 2、`visibility: hidden`不会影响计数器的计数
 
-3、CSS3的`transition`支持`visibility`属性，但是并不支持`display`，由于`transition`可以延迟执行，因此可以配合`visibility`使用纯css实现`hover`延时显示效果
+3、CSS3的`transition`支持`visibility`属性，但是并不支持`display`，由于`transition`可以延迟执行，因此可以配合`visibility`使用纯css实现`hover`延时显示效果 ==> **动画效果**
+
+> display:none和visibility:hidden两者的区别: https://cloud.tencent.com/developer/article/2425761
+>
+> display:none:
+>
+> - 直接从文档流中消失，释放位置空间
+> - 对于需要大量隐藏的元素，通过display可以释放大量空间
+>
+> visibility:hidden：
+>
+> - 隐藏元素，但还保存在文档流中
+> - 会继承父元素的visibility属性
+> - 依旧可以触发元素监听函数
+> - 可以配合opacity实现**平滑移动和渐变处理**
 
 
 

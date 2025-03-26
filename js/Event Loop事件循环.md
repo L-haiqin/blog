@@ -39,7 +39,30 @@ MicroTask（微任务）：
 
 **【注意】** promise虽然是异步函数，但promise里面的代码同步执行，`promise.then()`里面的代码才需要异步执行，属于微任务。
 
+#### 怎么识别宏任务和微任务
+
+宏任务：
+
+- 由**宿主（浏览器、Node）**发起的，一般在JavaScript引擎空闲时执行（不知道这样说合不合理）。
+
+- 任务大耗时但不紧急。
+
+微任务：
+
+- 指在当前任务执行结束后立即执行的任务。
+- 任务小而紧急。
+
+> 所以发起一个请求，属于宏任务，因为是由浏览器发起的。
+
+#### 执行顺序
+
+- 执行同步代码
+- 执行当前队列所有的微任务
+- 执行一个宏任务（**每次只会触发一次宏任务**）
+- 依次菜重复步骤2和3
+
 #### 事件循环机制
+
 `main thread` 主线程和 `call-stack` 调用栈(执行栈)，所有的任务都会被放到调用栈等待主线程执行。
 
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20210201093030362.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzk3MzQxNQ==,size_16,color_FFFFFF,t_70)
@@ -97,5 +120,58 @@ MicroTask（微任务）：
 - new一个对象会瞬时执行，函数需要调用（即最后一行`fun2()`被调用后）才会执行
 - 参考视频教程：[2分钟了解 JavaScript Event Loop | 面试必备](https://www.bilibili.com/video/BV1kf4y1U7Ln/?spm_id_from=333.788.b_636f6d6d656e74.30)
 
+例5:
 
-参考博客：[JavaScript 运行机制详解：再谈Event Loop](http://www.ruanyifeng.com/blog/2014/10/event-loop.html)、[一次弄懂Event Loop](https://zhuanlan.zhihu.com/p/55511602)
+```js
+//S1
+setTimeout(() => {
+  console.log(1); 
+  //S4
+  setTimeout(() => {
+    //M2
+    Promise.resolve().then(() => {
+      console.log(9);
+    }); 
+  }, 0);
+  //M3
+  Promise.resolve().then(() => {
+    console.log(7);
+  }); 
+}, 0); 
+
+console.log(2); 
+
+//M1
+Promise.resolve().then(() => {
+  console.log(3);
+}); 
+
+//S2
+setTimeout(() => {
+  console.log(8);
+  //S5
+  setTimeout(() => {
+    console.log(5);
+  }, 0); 
+}, 0);
+
+//S3
+setTimeout(() => {
+  //M6
+  Promise.resolve().then(() => {
+    console.log(4);
+  }); 
+}, 0);
+
+console.log(6);
+```
+
+输出顺序: 2 6 3 1 7 8 4 9 5
+
+**每次从宏任务队列里面取宏任务时，只取一个；而从微任务队列里面取微任务时，取全部。**
+
+
+
+
+
+参考博客：[JavaScript 运行机制详解：再谈Event Loop](http://www.ruanyifeng.com/blog/2014/10/event-loop.html)、[一次弄懂Event Loop](https://zhuanlan.zhihu.com/p/55511602)、[关于 JavaScript 的事件循环、微任务和宏任务](https://blog.csdn.net/qq_41950190/article/details/130076969)
