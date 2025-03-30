@@ -242,8 +242,112 @@ app.listen(3001)
 
 `Contenthash`：根据文件内容来定义 hash，文件内容不变，则 contenthash 不变
 
+#### 9、常用的plugin
+
+HtmlWebpackPlugin：自动在打包结束后生成html文件，并引入bundle.js
+CleanWebpackPlugin：打包自动删除上次打包文件
+
+![image-20250329203627275](/Users/lihaiqin/Library/Application Support/typora-user-images/image-20250329203627275.png)
+
+#### 10、bundle、chunk、module
+
+bundle：是由webpack打包出来的文件
+
+chunk：是指webpack在进行模块依赖分析的时候，代码分割出来的代码块
+
+module：是开发中的单个模块
+
+#### 11、Tree Sharking
 
 
+发生阶段：chunk打包成bundle。
+
+目的：删除无用的代码和引用，从而减少bundle的大小，提升应用程序的性能和加载速度。
+
+使用条件：仅仅针对es的静态模版导出方式。像`require（''）`这种模块的依赖关系是动态的。就是说只有在代码运行的时候，我们才知道他require了一个什么模块。但是ESM的import 和 export是静态的，所以以此实现对代码的静态分析。
+
+过程：
+
+- **静态分析**：查看inport和export语句，确定哪些模块被导入或者导出，特别是分析模块之间的依赖关系。
+- **标记**未引用的代码：标记所有未被引用的代码（也称为未引用的模块或未使用的导出），也称为“死代码”。
+- **删除**未引用的代码：在生成最终打包产物的时候，使用 Terser **删掉**这些没被用到的导出语句。
+
+注意：
+
+- 需要使用ES Module
+- 在导入模块时，尽量只导入你真正需要的部分，而不是整个模块。例如，使用命名导入 `import { functionA } from 'module'`，而不是导入整个模块 `import * as module from 'module'`
+
+sideEffects 和 usedExports（更多地被称为 tree shaking）是两种不同的优化方式。
+
+sideEffects 更为有效 是因为它允许跳过整个模块/文件和整个文件子树
+
+https://webpack.docschina.org/guides/tree-shaking/
+
+[Webpack 原理系列九：Tree-Shaking 实现原理](https://juejin.cn/post/7002410645316436004)
+
+[vite webpack tree shaking原理](https://www.cnblogs.com/jocongmin/p/18301454)
+
+#### 12、webpack实现多页面打包
+
+react/vue都是单页面应用。
+
+如果说现在有3个js文件，希望分别能够生成3个html，而不是只打包出来一个html文件。这种情况应该怎么处理呢？
+
+第一步：给每个文件配置入口entry
+第二步：给每个文件配置html-webpack-plugin （如果不配置这一步的话，多个文件还是会打包生成一个html）
+
+[Webpack实现多页面打包](https://cloud.tencent.com/developer/article/2207469)
+https://github.com/darrell0904/webpack-doc/blob/master/docs/chapter3/more_page.md
+
+```js
+...
+const commonConfig = {
+  entry: {
+    // 第一步：配置entry
+    main: "./src/index.js",
+    list: "./src/list.js",
+    details: "./src/details.js",
+  },
+  ...
+  plugins: [
+    ...
+    // 第二步：每个页面需要配置HtmlWebpackPlugin
+    new HtmlWebpackPlugin({
+      template: 'src/index.html',
+      filename: 'index.html',
+      chunks: ['runtime', 'vendors', 'main'],
+    }),
+    new HtmlWebpackPlugin({
+      template: 'src/index.html',
+      filename: 'list.html',
+      chunks: ['runtime', 'vendors', 'list'],
+    }),
+    new HtmlWebpackPlugin({
+      template: 'src/index.html',
+      filename: 'details.html',
+      chunks: ['runtime', 'vendors', 'details'],
+    }),
+    ...
+  ],
+  optimization: {
+    usedExports: true,
+    runtimeChunk: {
+     name: 'runtime',
+    },
+    splitChunks: {
+      chunks: 'all',
+      cacheGroups: {
+        vendors: {
+          test: /[\\/]node_modules[\\/]/,
+          priority: -10,
+          name: 'vendors',
+        }
+      }
+    },
+  },
+}
+...
+```
 
 
 

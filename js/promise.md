@@ -166,7 +166,77 @@ Promise.all([promise1, promise2, promise3]).then((values) => {
   - 如果传入的参数是一个空的可迭代对象，则返回一个**已完成（already resolved）**状态的 [`Promise`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise)。对应p
   -  如果传入的参数不包含任何 `promise`，则返回一个**异步完成（asynchronously resolved，先pending，再resolved）** [`Promise`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise)。 对应p2
 
-##### 5、Promise.race()
+promise.all如果有一个失败的话，就会直接返回失败的promise，其他promise还会执行吗？
+
+- 会执行
+
+```js
+const resolvePromise = (time) =>
+  new Promise((resolve, reject) => {
+    setTimeout(() => resolve(console.log("resolve:", time)), time * 1000);
+  });
+const rejectPromise = (time) =>
+  new Promise((resolve, reject) => {
+    setTimeout(() => reject(console.log("reject:", time)), time * 1000);
+  });
+const p1 = resolvePromise(1);
+const p2 = resolvePromise(3); // 后续的promise还会继续执行
+const p3 = rejectPromise(2);
+
+Promise.all([p1, p2, p3])
+  .then((res) => console.log("promise all resolve:", res))
+  .catch((e) => {
+    console.log("promise all reject:", e);
+  });
+
+// resolve:1
+// reject:2
+// promise all resolve: 2
+// resolve:3
+```
+
+##### 5、Promise.allSettled()
+
+接受一个 **Promise** 对象的数组作为参数，并返回一个新的 Promise 实例。
+
+该实例会在所有传入的 Promise 实例都完成(**无论是 resolved 还是 rejected**)**后才完成**。
+
+返回的promise是一个对象数组，每一个对象包含下面三个值：
+
+- status：一个字符串，要么是 `"fulfilled"`，要么是 `"rejected"`，表示 promise 的最终状态。
+- value：仅当 `status` 为 `"fulfilled"`，才存在。promise 兑现的值。
+- reason：仅当 `status` 为 `"rejected"`，才存在，promsie 拒绝的原因。
+
+```js
+  const promise1 = new Promise((resolve, reject) => {
+    setTimeout(() => resolve('Promise 1 resolved'), 1000)
+  })
+
+  const promise2 = new Promise((resolve, reject) => {
+    setTimeout(() => reject('Promise 2 rejected'), 500)
+  })
+
+  const promise3 = new Promise((resolve, reject) => {
+    setTimeout(() => resolve('Promise 3 resolved'), 1500)
+  })
+
+  // 使用 Promise.allSettled
+  Promise.allSettled([promise1, promise2, promise3])
+    .then((results) => console.log(results))
+    .catch((error) => console.error(error))
+```
+
+![img](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/62ccb23d8d8e44d188cddd6e8a548428~tplv-k3u1fbpfcp-jj-mark:3024:0:0:0:q75.awebp#?w=789&h=361&s=31250&e=png&b=ffffff)
+
+与Promise.all()的区别：
+
+- Promise.all() 在其中任何一个 Promise 被拒绝时就会被拒绝，而 Promise.allSettled() 则会在所有 Promise 实例都完成(无论成功还是失败)时才完成。
+
+- Promise.all() 返回的是一个数组，数组中的值是传入的 Promise 实例的结果值,而 Promise.allSettled() 返回的是一个数组，数组中的值是对象，每个对象表示对应的 Promise 实例的状态和结果值。
+
+- 当你需要获取所有异步操作的结果时，无论是成功还是失败，应该使用 Promise.allSettled()。如果只关心所有操作都成功的情况，可以使用 Promise.all()。
+
+##### 6、Promise.race()
 
 返回一个 promise，一旦迭代器中的某个promise解决或拒绝，返回的 promise就会解决或拒绝。
 
@@ -225,7 +295,7 @@ requestImg函数会异步请求一张图片，我把地址写为"图片的路径
 
 ![img](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2018/5/19/16376a95ffa3b13c~tplv-t2oaga2asx-watermark.image)
 
-##### 6、Promise.any()
+##### 7、Promise.any()
 
 接收一个[`Promise`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise)可迭代对象（注：Array，Map，Set都属于ES6的iterable类型），只要其中的一个 `promise` 成功，就返回那个已经成功的 `promise` 。
 
@@ -233,7 +303,7 @@ requestImg函数会异步请求一张图片，我把地址写为"图片的路径
 
 本质上，这个方法和[`Promise.all()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise/all)是相反的。 
 
-##### 7、Promise.prototype.then()
+##### 8、Promise.prototype.then()
 
 接受resolve()回调的参数值。then 中的函数一定要 return 一个结果或者一个新的 Promise 对象，才可以让之后的then 回调接收。
 
@@ -246,9 +316,9 @@ requestImg函数会异步请求一张图片，我把地址写为"图片的路径
 - 返回一个已经是拒绝状态的 Promise，那么 `then` 返回的 Promise 也会成为拒绝状态，并且将那个 Promise 的拒绝状态的回调函数的参数值作为该被返回的Promise的拒绝状态回调函数的参数值。
 - 返回一个未定状态（`pending`）的 Promise，那么 `then` 返回 Promise 的状态也是未定的，并且它的终态与那个 Promise 的终态相同；同时，它变为终态时调用的回调函数参数与那个 Promise 变为终态时的回调函数的参数是相同的。
 
-##### 8、Promise.prototype.catch()
+##### 9、Promise.prototype.catch()
 
-##### 9、Promise.prototype.finally()
+##### 10、Promise.prototype.finally()
 
 参考博客：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise
 
