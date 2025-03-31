@@ -269,7 +269,7 @@ module：是开发中的单个模块
 过程：
 
 - **静态分析**：查看inport和export语句，确定哪些模块被导入或者导出，特别是分析模块之间的依赖关系。
-- **标记**未引用的代码：标记所有未被引用的代码（也称为未引用的模块或未使用的导出），也称为“死代码”。
+- **标记**未引用的代码：标记所有未被引用的代码（也称为未引用的模块或未使用的导出），也称为“死代码”。会使用`/* unused harmony export b */`进行标记死代码。
 - **删除**未引用的代码：在生成最终打包产物的时候，使用 Terser **删掉**这些没被用到的导出语句。
 
 注意：
@@ -279,7 +279,18 @@ module：是开发中的单个模块
 
 sideEffects 和 usedExports（更多地被称为 tree shaking）是两种不同的优化方式。
 
-sideEffects 更为有效 是因为它允许跳过整个模块/文件和整个文件子树
+usedExports：
+
+- 一般配合开发环境观察tree sharking
+- 设置为true，没有使用的代码会被标记`/* unused harmony export b */`
+
+sideEffects 更为有效 是因为它允许跳过整个模块/文件和整个文件子树。
+
+- true：所有文件都`有副作用`，**不可以 tree-shaking**
+- false：所有文件`没有副作用`，**可以 tree-shaking**
+- 数组：`只有数组中的文件有副作用`**不可以被 tree-shaking**，其它的都可以 tree-shaking
+
+[webpack tree-shaking解析](https://juejin.cn/post/7246219936594821180)
 
 https://webpack.docschina.org/guides/tree-shaking/
 
