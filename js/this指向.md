@@ -5,7 +5,7 @@
 
 ```javascript
 var f = function () {
-  console.log(this.x);
+  console.log(this.x); // 非严格模式下，独立函数调用的this指向全局对象（window）
 }
 
 var x = 1;
