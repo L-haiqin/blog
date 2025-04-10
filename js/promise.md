@@ -357,6 +357,12 @@ hello().then((value) => console.log(value));
 
 ##### 2、promise.then成功的情况对应await
 
+await后面跟一个promise对象：会等待该promise resolve或者reject
+
+await后面跟一个数字：直接转换成resolve，相当于await Promise.resolve(4)
+
+await后面跟一个async函数：会转换成resolve的promise
+
 ```javascript
 // await后面跟一个promise对象
 async function test3(){

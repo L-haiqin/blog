@@ -218,6 +218,12 @@ srcipt end
 
 - await相当于promise.then，题目中的await后面的promise没有返回值，相当于它的状态一直是pending状态，所以await后面的代码不会执行，以及async1().then也不会执行。
 
+await后面跟一个promise对象：会等待该promise resolve或者reject
+
+await后面跟一个数字：直接转换成resolve，相当于await Promise.resolve(4)
+
+await后面跟一个async函数：会转换成resolve的promise
+
 区别于：
 
 ```javascript
@@ -704,18 +710,31 @@ oo
 
 ##### 3.2 题目二
 
+函数作为**构造函数**被调用（使用new），会初始化一个实例对象，函数内部的this指向这个实例对象。
+
+函数作为**普通函数**被调用，函数内部的this指向全局对象（windows）。
+
 ```javascript
 abc = 1;
 function Foo(){
-    this.abc = 2;
+    this.abc = 2; // 表示每个 Foo 实例会拥有自己的属性 abc，值为 2
 }
-var foo = new Foo();
+var foo = new Foo(); // Foo函数作为构造函数被调用
 alert(foo.abc);
 
 // 打印：2
+
+// 区别于下面的写法：
+abc = 1;
+function Foo(){
+    abc=2; // 修改全局变量
+    console.log(this.abc); // 2
+}
+Foo(); // 这里是直接调用函数，函数里面的this会指向全局变量
+console.log(abc) // 2
 ```
 
-##### 3.3 题目三？？？？？
+##### 3.3 题目三
 
 ```javascript
 var ctx = {_val: 30};
@@ -757,6 +776,7 @@ func() // undefined，作为普通函数被调用，此时this指向全局对象
 
 // 或者使用bind、call改变this指向
 func.bind(o)()
+// 或者func.call(o) // 立即执行
 
 // 要使输出didi，可以使用箭头函数
 const o = {
@@ -769,14 +789,38 @@ getName() {
 }
 const func = o.getName();
 func()
+
+// 区别
+const o = {
+name: 'didi',
+getName:() => {
+    return () => {
+        console.log(this.name); // 这里的this指向全局对象，此时没有全局属性name，所以打印空的字符串 ''
+    }
+}
+}
+// var name='test' // 如果加了这一行的话会打印test
+const func = o.getName();
+func()
 ```
+
+注意一下这里的区别：
+
+如果是普通函数，这里的this会指向全局对象
+
+如果是箭头函数，这里的this直接继承外层的对象o的this，无论后续怎么调用，永远为o.getName的上下文
 
 #### 4、作用域
 
 ##### 4.1 题目一 ？？？？？
 
+**函数声明的优先级最高**，它永远被提升至作用域最顶部，然后才是**函数表达式和变量按顺序执行**。
+
+具名函数表达式中的函数名只在函数内部有效，并且这个标识符是常量，不允许修改
+
 ```javascript
 var b = 10;
+// 具名函数表达式中的函数名只在函数内部有效，并且这个标识符是常量，不允许修改
 (function b(){
     b = 20;
     console.log(b);
@@ -785,18 +829,44 @@ var b = 10;
 /*打印：
 function b(){}
 */
+
+
+// 区别：
+var b = 10;
+function b(){
+    b = 20;
+    console.log(b);
+};
+b() // 这里的b表示10,并不是函数b
+
+// 区别：
+var b = 10;
+// 匿名函数
+(function() { 
+    b = 20; // 修改全局变量 b
+    console.log(b); // 输出 20
+})();
 ```
 
-##### 4.2 题目二 ？？？？？
+##### 4.2 题目二
+
+函数声明提升
 
 ```javascript
 function a(x){
     return x*2;
 }
 var a;
-alert(typeof(a));
+console.log(typeof(a));
 
 // 打印：function
+
+// 区别：
+function a(x){
+    return x*2;
+}
+var a=10; // 为a赋值
+console.log(typeof(a)); // number
 ```
 
 ##### 4.3 题目三
@@ -804,10 +874,11 @@ alert(typeof(a));
 ```javascript
 var a = 1;
 function foo(){
-    alert(a);
+    console.log(a);
     var a = 2;
 }
 foo()
+console.log(a) // 1
 
 // 打印：undefined
 ```
@@ -840,8 +911,8 @@ console.log(y + ',' + z);
 ```javascript
 var a = 10, b = 11, c = 12;
 function test(a){
-    a = 1;
-    var b = 2;
+    a = 1; // 形参a
+    var b = 2; // 函数内部的b
     c = 3;
 }
 test(10)
@@ -890,31 +961,39 @@ if (typeof f === 'number') {
 let obj = {
     a: 100,
     log(){
-        a = 200;
+        a = 200; // 隐式的创建了一个全局变量
         console.log(this.a);
     }
 }
 obj.log();
 let { log } = obj;
-log();
+log(); // this指向全局变量
+console.log(a)
 
-// 打印：100 200
+// 打印：100 200 200
 ```
 
 ##### 4.9 题目九
 
+`var` 声明的变量是 **函数作用域** 或 **全局作用域**，不受块级作用域（`{}`）限制
+
+`let` 声明的变量是 **块级作用域**，仅在当前代码块 `{}` 内有效。
+
 ```javascript
-{var a = 0};
+{var a = 0}; // 全局
 {let b = 0};
 {let a = 1};
-{var b = 1};
+{var b = 1}; // 全局
 console.log(a,b) // 0 1
 ```
 
 ##### 4.10 题目十
 
+const、let 声明的变量不会成为全局对象的属性。只有var声明的变量才可以作为全局对象的属性。
+
 ```javascript
-const a=1
+const a=1 // const 声明的变量不会成为全局对象的属性
+// 如果这里改成var a=1, 则会输出 2 1 1 1
 const obj={
     a:2,
     show1:function(){
