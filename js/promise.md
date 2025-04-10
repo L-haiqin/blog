@@ -191,7 +191,7 @@ Promise.all([p1, p2, p3])
 
 // resolve:1
 // reject:2
-// promise all resolve: 2
+// promise all reject: undfined
 // resolve:3
 ```
 
@@ -222,8 +222,8 @@ Promise.all([p1, p2, p3])
 
   // 使用 Promise.allSettled
   Promise.allSettled([promise1, promise2, promise3])
-    .then((results) => console.log(results))
-    .catch((error) => console.error(error))
+    .then((results) => console.log('result:',results))
+    .catch((error) => console.error('error:',error))
 ```
 
 ![img](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/62ccb23d8d8e44d188cddd6e8a548428~tplv-k3u1fbpfcp-jj-mark:3024:0:0:0:q75.awebp#?w=789&h=361&s=31250&e=png&b=ffffff)

@@ -75,7 +75,7 @@ timer2
 
 - 每一轮宏任务后紧跟微任务。
 
-##### 1.4 题目四 ？？？？？
+##### 1.4 题目四
 
 ```javascript
 setImmediate(function(){
