@@ -34,7 +34,7 @@ export default function App() {
 
 ```
 
-### 2 题目二
+### 2 题目二：竞态问题
 
 有一个场景，发送多次请求，怎么保证参数与请求对应？
 
@@ -151,3 +151,64 @@ fromEvent(input, 'input')
 [从 SWR 开始 — 一窥现代请求 hooks 设计模型](https://developer.aliyun.com/article/786572)
 
 **方法五：防抖节流**
+
+### 3 题目三：cache request
+
+实现一下 cache request（请求过的数据不再请求）
+
+使用map进行存储已经请求过的数据，并且处理并发请求。支持缓存实效性。
+
+```js
+type Cache = {
+  timestamp: number; // 请求返回后的时间戳，用于判断是否过期
+  data: any; // response
+  promise: Promise<any>; // fetch请求，用于处理并发
+};
+
+class CacheRequest {
+  private cache; // {url:{timestamp,data,promise}}
+  private cacheTime;
+  constructor() {
+    this.cache = new Map();
+    this.cacheTime = 5 * 60 * 1000; // 默认过期时间为5min
+  }
+
+  request(url) {
+    // 缓存存在，且没有过期，则使用缓存的数据
+    if (this.cache.has(url) && this.isValidateTime(url)) {
+      return this.cache.get(url).data;
+    }
+
+    // 处理并发请求，如果当前请求已经在处理中，则不需要再次请求
+    const curCache = this.cache.get(url);
+    if (!curCache?.promise) {
+      const promise = fetch(url)
+        .then(res => {
+          this.cache.set(url, {
+            timestamp: Date.now(),
+            data: res?.data,
+            promise: null,
+          });
+          return res?.data;
+        })
+        .catch(e => {
+          console.log(e);
+          // 失败时清除缓存
+          this.cache.delete(url);
+        });
+
+      this.cache.set(url, { promise });
+    }
+
+    // 当前请求在处理中，直接返回response
+    return this.cache.get(url).promise;
+  }
+
+  // 缓存是否过期
+  isValidateTime(url) {
+    const { timestamp } = this.cache.get(url);
+    return Date.now() - timestamp < this.cacheTime;
+  }
+}
+```
+
