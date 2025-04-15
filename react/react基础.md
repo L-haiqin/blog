@@ -375,12 +375,14 @@ const useDebounceEffect = (fn, deps, timeout) => {
 对 useCallback、useMemo 这两个 hook 的理解，有什么样的区别，适合在什么场景下使用
 
 - 是不是所有的变量或者函数都需要用这两个 hook 进行包裹
-
 - 能不能量化一下，什么情况下需要使用
-
 - 包裹后性能一定会好吗，为什么？
-
 - 有没有更底层一点的理解
+
+useCallback（缓存函数本身）使用场景：
+
+- 将其作为 props 传递给包装在 [`memo`] 中的组件。如果 props 未更改，则希望跳过重新渲染。缓存允许组件仅在依赖项更改时重新渲染。
+- 传递的函数可能作为某些 Hook 的依赖。比如，另一个包裹在 `useCallback` 中的函数依赖于它，或者依赖于 [`useEffect`](https://zh-hans.react.dev/reference/react/useEffect) 中的函数。
 
 ### 15 React 组件中绑定一个事件跟直接操作 DOM 绑定一个事件有什么差别
 
