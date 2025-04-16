@@ -247,7 +247,18 @@ app.listen(3001)
 HtmlWebpackPlugin：自动在打包结束后生成html文件，并引入bundle.js
 CleanWebpackPlugin：打包自动删除上次打包文件
 
-![image-20250329203627275](/Users/lihaiqin/Library/Application Support/typora-user-images/image-20250329203627275.png)
+```js
+import WebpackBar from 'webpackbar';
+import { WebpackManifestPlugin } from 'webpack-manifest-plugin';
+import TerserPlugin from 'terser-webpack-plugin';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
+import { DefinePlugin, Configuration, SourceMapDevToolPlugin } from 'webpack';
+import SourceMapPlugin from '@mdap/source-map-webpack-plugin';
+import ImageMinimizerPlugin from 'image-minimizer-webpack-plugin';
+```
 
 #### 10、bundle、chunk、module
 
@@ -268,7 +279,7 @@ module：是开发中的单个模块
 
 过程：
 
-- **静态分析**：查看inport和export语句，确定哪些模块被导入或者导出，特别是分析模块之间的依赖关系。
+- **静态分析**：查看import和export语句，确定哪些模块被导入或者导出，特别是分析模块之间的依赖关系。
 - **标记**未引用的代码：标记所有未被引用的代码（也称为未引用的模块或未使用的导出），也称为“死代码”。会使用`/* unused harmony export b */`进行标记死代码。
 - **删除**未引用的代码：在生成最终打包产物的时候，使用 Terser **删掉**这些没被用到的导出语句。
 
