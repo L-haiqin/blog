@@ -129,6 +129,8 @@
 
 #### **浏览器在使用HTTPS传输数据的流程**
 
+可能会存在中间人攻击。更多查看[看图学HTTPS](https://juejin.cn/post/6844903608421449742?from=search-suggest)。
+
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/202101311338511.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzk3MzQxNQ==,size_16,color_FFFFFF,t_70)
 - 首先客户端通过URL访问服务器建立SSL连接。
 - 服务端收到客户端请求后，会将网站支持的证书信息（证书中包含公钥）传送一份给客户端。
