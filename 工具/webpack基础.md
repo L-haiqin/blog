@@ -371,6 +371,58 @@ const commonConfig = {
 ...
 ```
 
+#### 13、拆包
+
+打包后的Chunk文件过大，进行拆包。使用splitChunks.cacheGroups进行配置
+
+```js
+chainWebpack: (config) => {
+    config.module
+      .rule("images")
+      .test(/\.(png|svg|jpg|jpeg|gif)$/)
+      .set("parser", {
+        dataUrlCondition: {
+          maxSize: 1,
+        },
+      });
+      // 开发环境不拆包
+      // 分模块和优先级进行拆分
+      if (process.env.NODE_ENV !== "development") {
+      config.optimization.splitChunks({
+        chunks: "all",
+        automaticNameDelimiter: "-",
+        cacheGroups: {
+          vant: {
+            name: "chunk-vant",
+            priority: 32,
+            test: /[\\/]node_modules[\\/]_?vant(.*)/,
+          },
+          mathjs: {
+            name: "chunk-mathjs",
+            priority: 35,
+            test: /[\\/]node_modules[\\/]_?mathjs(.*)/,
+          },
+          vue: {
+            name: "chunk-vuejs",
+            priority: 30,
+            test: /[\\/]node_modules[\\/](vue|vue-router|vuex)[\\/]/,
+          },
+          // src/components组件从chunk里拆分出来
+          components: {
+            name: "chunk-components",
+            test: resolve("src/components"),
+            minChunks: 2,
+            priority: 5,
+            reuseExistingChunk: true,
+          },
+        },
+      });
+      config.optimization.runtimeChunk("single");
+    }
+  }
+
+```
+
 
 
 #### 存在的问题！！！！

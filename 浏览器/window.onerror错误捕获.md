@@ -173,3 +173,10 @@ export default function App() {
   </Erro
 ```
 
+### 生产环境的错误异常
+
+使用sourcemap。
+
+生产环境生成的代码会被打包后只有1行，所有错误都会显示在第一行。
+
+在服务端对接收到的错误信息使用source-map解析。

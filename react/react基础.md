@@ -372,6 +372,8 @@ const useDebounceEffect = (fn, deps, timeout) => {
 
 ### 14 useCallback和useMemo
 
+[面试官：useCallback，useMemo使用后性能一定好吗？](https://juejin.cn/post/7430644213888696371?share_token=B2AFDC22-EB4E-4B57-89F8-3C34FBA98B51)
+
 对 useCallback、useMemo 这两个 hook 的理解，有什么样的区别，适合在什么场景下使用
 
 - 是不是所有的变量或者函数都需要用这两个 hook 进行包裹
@@ -379,10 +381,20 @@ const useDebounceEffect = (fn, deps, timeout) => {
 - 包裹后性能一定会好吗，为什么？
 - 有没有更底层一点的理解
 
-useCallback（缓存函数本身）使用场景：
+**useCallback（缓存函数本身）使用场景：**
 
 - 将其作为 props 传递给包装在 [`memo`] 中的组件。如果 props 未更改，则希望跳过重新渲染。缓存允许组件仅在依赖项更改时重新渲染。
 - 传递的函数可能作为某些 Hook 的依赖。比如，另一个包裹在 `useCallback` 中的函数依赖于它，或者依赖于 [`useEffect`](https://zh-hans.react.dev/reference/react/useEffect) 中的函数。
+
+**包裹后性能一定会好吗:**
+
+- 不一定，因为对函数引用存在缓存，缓存也是需要花时间的；
+- 如果频繁触发更新，缓存经常失效，反而会增加react为维护和清理缓存所付出的性能开销。
+
+**底层原理：**
+
+- react更新机制，父组件的props改变会触发子组件重新渲染，比如函数/对象的引用地址（会在内存中创建新的实例）发生变化，也会被重新渲染。
+- useMemo和useCallback会比较依赖性是否改变，不改变就返回上一次的引用地址。
 
 ### 15 React 组件中绑定一个事件跟直接操作 DOM 绑定一个事件有什么差别
 
