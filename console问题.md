@@ -1022,9 +1022,17 @@ function fn1(){}
 function fn2(){}
 fn1.prototype = new fn2(); // fn1.prototype._proto_ = fn2.prototype
 fn2.prototype = new fn1(); // fn2.prototype._proto_ = fn1.prototype
-const f1 = new fn1(); // f1._proto_ = fn1.prototype   = fn2.prototype._proto_
-const f2 = new fn2(); // f2._proto_ = fn2.prototype   = fn1.prototype._proto_
+const f1 = new fn1(); // f1._proto_ = fn1.prototype，fn1.prototype._proto_ = fn2.prototype
+const f2 = new fn2(); // f2._proto_ = fn2.prototype，fn2.prototype._proto_ = fn1.prototype
 console.log(f1.constructor, f2.constructor) // fn2 fn2
+```
+
+```
+f1 的原型链:
+f1 → fn1.prototype（fn2实例） → fn2.prototype（原始） → Object.prototype → null
+                                 ↑
+f2 的原型链:
+f2 → fn2.prototype（fn1实例） → fn1.prototype（fn2实例） → fn2.prototype（原始） → Object.prototype → null
 ```
 
 ##### 5.2 题目二
@@ -1036,13 +1044,13 @@ let base = {
 let A = function (){
     this.name = 'a';
 }
-A.prototype = Object.create(base);
+A.prototype = Object.create(base); // A.prototype.__proto__ === base（关键点）
 let a = new A();
 base.name = 'new_name';
-console.log(a.name);
+console.log(a.name); // a
 
-delete a.name;
-console.log(a.name);
+delete a.name; // a.name被删除后，会继续在原型链上面查找
+console.log(a.name); // new_name
 ```
 
 - `Object.create(proto[, propertiesObject])`：使用指定的**原型对象**及其属性去创建一个新的对象。
@@ -1050,7 +1058,7 @@ console.log(a.name);
 ##### 5.3 题目三
 
 ```javascript
-Function,prototype.f = function(){
+Function.prototype.f = function(){
     return Function.prototype.call.bind(this);
 }
 console.log(Array.prototype.push.f()([],0,1,2)); // prototype is not defined
@@ -1060,7 +1068,7 @@ console.log(Array.prototype.push.f()([],0,1,2)); // prototype is not defined
 
 ```javascript
 function f(){}
-f.prototype.name = 100; // 上添加name属性
+f.prototype.name = 100; // 原型上添加name属性
 let a = new f();
 console.log(a.name); // 100
 
