@@ -55,6 +55,12 @@ Linking.canOpenURL
 
 Linking.openURL
 
+如果是h5的话：[H5 如何 C 端唤起导航高德百度 APP](https://juejin.cn/post/7486659696063397938)
+
+- IOS：使用universal link 。
+  - 官方解释：当用户点击通用链接时，系统会将链接直接重定向到您的App，而无需通过用户的默认网页浏览器或您的网站进行路由。此外，由于通用链接是标准的HTTP或HTTPS链接，因此一个URL既适用于您的网站也适用于您的App。如果用户尚未安装您的App，系统会在其默认网页浏览器中打开该URL，从而允许您的网站处理它。
+- Android：设置一个500ms的定时器，监听visibilitychange事件，如果500ms内没有跳转到app，说明没有安装该app，则跳转到app下载页面（**定时器 + 页面隐藏事件**）
+
 ![image.png-153.6kB](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/d88f17ac906e4b32b80478dfd7c3e311~tplv-k3u1fbpfcp-zoom-in-crop-mark:1512:0:0:0.awebp)
 
 **方法二：向Webview中注入JS API**
