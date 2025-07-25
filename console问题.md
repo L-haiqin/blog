@@ -1025,6 +1025,7 @@ fn2.prototype = new fn1(); // fn2.prototype._proto_ = fn1.prototype
 const f1 = new fn1(); // f1._proto_ = fn1.prototype，fn1.prototype._proto_ = fn2.prototype
 const f2 = new fn2(); // f2._proto_ = fn2.prototype，fn2.prototype._proto_ = fn1.prototype
 console.log(f1.constructor, f2.constructor) // fn2 fn2
+// f1.constructor和f1._proto_.constructor是一样的，都是获取构造函数
 ```
 
 ```

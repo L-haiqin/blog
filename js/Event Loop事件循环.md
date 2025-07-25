@@ -25,12 +25,12 @@ Event Loop即事件循环，是指浏览器或Node的一种解决javaScript**单
 #### 宏任务与微任务（均为异步任务）
 MacroTask（宏任务，简称Task）：
 
-- `script`全部代码、`setTimeout`、`setInterval`、`setImmediate`（浏览器暂时不支持，只有IE10支持，具体可见MDN）、DOM事件、AJAX请求、`I/O`、`UI Rendering`。
+- `script`全部代码、`setTimeout`、`setInterval`、`setImmediate`（浏览器暂时不支持，只有IE10支持，具体可见MDN）、DOM事件（点击/滚动等）、AJAX请求、`I/O`（文件读写/网络请求）、`requestAnimationFrame`（浏览器动画帧回调）、`UI Rendering`。
 
 
 MicroTask（微任务）：
 
- - `Process.nextTick`（Node独有）、`Promise.then()`、`async/await`、`Object.observe`(废弃)、`MutationObserver`。
+ - `Process.nextTick`（Node独有）、`Promise.then()`、`async/await`、`Object.observe`(废弃)、`MutationObserver`（监听 DOM 变化）、`queueMicrotask()` 显式添加的微任务。
 
 
 任务的优先级：
@@ -49,10 +49,15 @@ MicroTask（微任务）：
 
 微任务：
 
+- 由**JavaScript引擎线程自身**发起的轻量级异步任务，需在当前宏任务结束后立即执行，优先级高于宏任务。
 - 指在当前任务执行结束后立即执行的任务。
 - 任务小而紧急。
 
 > 所以发起一个请求，属于宏任务，因为是由浏览器发起的。
+
+这里涉及浏览器进程和线程的概念：
+
+![在这里插入图片描述](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/54a222107e4949dc8af23a02ea3ed484~tplv-k3u1fbpfcp-jj-mark:3024:0:0:0:q75.awebp#?w=707&h=387&s=48843&e=png&b=f8f3f3)
 
 #### 执行顺序
 
