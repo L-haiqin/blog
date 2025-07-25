@@ -133,6 +133,7 @@ const NavButton = withRouter(({ history }) => (
 自定义：
 
 - PermissionContainer、PageContainer（错误、loading）==> 好像是用with开头命名比较多
+- withPixTransferIntroductionHoc，如果用户是第一次进来，则展示说明页。配合async storage本地存储
 
 ### 7 页面白屏怎么捕获
 
