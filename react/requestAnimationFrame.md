@@ -75,6 +75,8 @@
 
 ### 3 与setTimeout、setInternal区别
 
+requestAnimationFrame不属于微任务也不属于宏任务，属于“动画帧回调队列”或“渲染队列”，执行顺序是：**微任务 > RAF > 宏任务**。
+
 `requestAnimationFrame`：
 
 - 用于动画效果的开发，以优化动画的性能。
