@@ -234,7 +234,7 @@ Promise.all([p1, p2, p3])
 
 - Promise.all() 返回的是一个数组，数组中的值是传入的 Promise 实例的结果值,而 Promise.allSettled() 返回的是一个数组，数组中的值是对象，每个对象表示对应的 Promise 实例的状态和结果值。
 
-- 当你需要获取所有异步操作的结果时，无论是成功还是失败，应该使用 Promise.allSettled()。如果只关心所有操作都成功的情况，可以使用 Promise.all()。
+- 当你需要获取所有异步操作的结果时，无论是成功还是失败，应该使用 Promise.allSettled()（比如预请求图片资源，prefetch image，即使其中一个请求失败也不会受影响）。如果只关心所有操作都成功的情况，可以使用 Promise.all()。
 
 ##### 6、Promise.race()
 
@@ -294,6 +294,22 @@ setTimeout(function(){
 requestImg函数会异步请求一张图片，我把地址写为"图片的路径"，所以肯定是无法成功请求到的。timeout函数是一个延时5秒的异步操作。我们把这两个返回Promise对象的函数放进race，于是他俩就会赛跑，如果5秒之内图片请求成功了，那么遍进入then方法，执行正常的流程。如果5秒钟图片还未成功返回，那么timeout就跑赢了，则进入catch，报出“图片请求超时”的信息。运行结果如下：
 
 ![img](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2018/5/19/16376a95ffa3b13c~tplv-t2oaga2asx-watermark.image)
+
+- 上传图片/请求接口，超时使用
+
+  ```js
+  const resPromise = uploadFileGateway(finalUri, UploadType.USER, options);
+  const timeoutPromise = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      reject(new CodeError('upload image timeout', 'timeout'));
+    }, timeout); // 超时后不再等待上传结果
+  });
+  
+  const res = (await Promise.race([
+    resPromise,
+    timeoutPromise,
+  ])) as FileUploadResponse;
+  ```
 
 ##### 7、Promise.any()
 
@@ -949,12 +965,20 @@ class Monkey {
     console.log(`waited for ${timeout} s`);
     return this;
   }
+  
+  // 这种写法也不行，还没有执行setTimeout里面的代码，就会先执行后续的eat('Apple')，但是又没有this返回，所以Apple后面并不会被打印
+  // sleep(timeout) {
+  //   setTimeout(() => {
+  //     console.log(`waited for ${timeout} s`);
+  //     return this;
+  //   }, timeout * 1000);
+  // }
 }
 
 new Monkey('Alan').eat('Banana').sleep(4).eat('Apple').sleep(3).eat('Pear');
 ```
 
-方法二：
+方法二：**类里面实现链式调用，考虑 队列+promise.resolve+promise.then+new Promise**
 
 ```js
 class Monkey {
@@ -982,6 +1006,7 @@ class Monkey {
         }, seconds * 1000);
       });
     });
+    // 不会阻塞后续Apple执行，会在eat('Apple')里面的promise等待执行完之后，再then
     return this;
   }
 }
@@ -1161,6 +1186,39 @@ Promise.prototype.any = (iterators) => {
 ```
 
 [手写Promise.any](https://juejin.cn/post/6965596525388890142)
+
+###### 手写Promise.allSettled
+
+```js
+Promise.prototype.allSettled = iterators => {
+  let arr = Array.from(iterators);
+  // 如果传入空数组，直接返回已完成的 Promise
+  if (arr.length === 0) {
+    return Promise.resolve([]);
+  }
+  let len = 0;
+  let res = [];
+  return new Promise((resolve, reject) => {
+    arr.forEach(item => {
+      Promise.resolve(item)
+        .then(value => {
+          res.push({ status: 'fulfilled', value: value });
+        })
+        .catch(e => {
+          res.push({ status: 'rejected', reason: e });
+        })
+        .finally(() => {
+          // 无论成功还是失败，都增加计数器
+          len++;
+          // 当所有 Promise 都完成时，resolve 结果数组
+          if (len === arr.length) {
+            resolve(res);
+          }
+        });
+    });
+  });
+};
+```
 
 ##### 8、then和catch混合使用
 
