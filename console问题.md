@@ -789,7 +789,7 @@ func()
 // 区别
 const o = {
 name: 'didi',
-getName:() => {
+getName:() => { // 这里也是箭头函数
     return () => {
         console.log(this.name); // 这里的this指向全局对象，此时没有全局属性name，所以打印空的字符串 ''
     }
@@ -818,10 +818,9 @@ func()
 var b = 10;
 // 具名函数表达式中的函数名只在函数内部有效，并且这个标识符是常量，不允许修改
 (function b(){
-    b = 20;
+    b = 20; // b = 20 试图给内部标识符 b 赋值，但在严格模式下会报错，在非严格模式下静默失败，不会把 b 改成 20。
     console.log(b);
 })();
-
 /*打印：
 function b(){}
 */
@@ -829,11 +828,12 @@ function b(){}
 
 // 区别：
 var b = 10;
+// 函数声明，优先级更高
 function b(){
     b = 20;
     console.log(b);
 };
-b() // 这里的b表示10,并不是函数b
+b() // 这里的b表示10,并不是函数b，会报错b is not a function
 
 // 区别：
 var b = 10;
@@ -870,13 +870,18 @@ console.log(typeof(a)); // number
 ```javascript
 var a = 1;
 function foo(){
-    console.log(a);
+    console.log(a); // undefined
     var a = 2;
 }
 foo()
 console.log(a) // 1
 
-// 打印：undefined
+// 相当于：
+function foo(){
+    var a;           // 提升：函数一开始就有局部变量 a，初值为 undefined
+    console.log(a);  // 此时 a 还是 undefined
+    a = 2;           // 到这里才赋值 2
+}
 ```
 
 ##### 4.4 题目四
@@ -996,7 +1001,7 @@ const obj={
         console.log(this.a)
     },
     show2:()=>{
-        console.log(this.a)
+        console.log(this.a) // 因为是箭头函数，这里的this指向全局对象
     },
 }
 
